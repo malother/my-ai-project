@@ -1,23 +1,42 @@
-# Neural Network Landing Page
+# Family Budget
 
-A 3D neural-network inspired landing page built with HTML, CSS, and Three.js. The experience features a dark futuristic interface, floating node network, and interactive motion to create a premium product showcase aesthetic.
+A portfolio-ready React Native family finance app built with Expo SDK 57. It gives a parent one calm place to understand weekly cash flow, recurring bills, family allowances, and savings goals.
 
-## Project Overview
-- 3D neural field background
-- Interactive pointer and drag motion
-- Futuristic hero section and CTA
-- Built with plain HTML/CSS/JS and Three.js
+## Highlights
 
-## Preview
-- Live demo: https://malother.github.io/my-ai-project/
-- Screenshot: ./screenshot.png
+- Home dashboard with weekly balance, safe-to-spend status, upcoming bills, category budgets, and recent activity
+- Recurring bills with active/paused toggles
+- Quick add flow for expenses, income, and family chores
+- Budget goals compared with live seeded spending
+- Connected bank accounts and saved payment cards
+- Family hub with kid balances, savings goals, chore approval, and allowance actions
+- Location/merchant spending insights fallback view
+- Local persistence with AsyncStorage and realistic seed data on first launch
+- Five-tab navigation: Home, Bills, Add, Location, Family
 
-## Run locally
+## Tech
+
+- Expo SDK 57 / React Native 0.81
+- React Navigation 7 (bottom tabs and native stack)
+- AsyncStorage for local mock persistence
+- `@expo/vector-icons` for Expo Go-safe icons
+- JavaScript with `screens/`, `components/`, `context/`, `data/`, and `navigation/` folders
+
+## Run
+
 ```bash
-cd /workspaces/my-ai-project
-python3 -m http.server 3000
+npm install
+npx expo start
 ```
-Then open http://localhost:3000
 
-## Final Screenshot
-![Neural Network Landing Page](./screenshot.png)
+Scan the QR code with Expo Go, or press `a`/`i` when an Android/iOS simulator is available. The project is managed-workflow friendly and does not require ejecting.
+
+## Validation
+
+The project was validated with:
+
+```bash
+npx expo export --platform android --no-bytecode --no-minify
+```
+
+The Android JavaScript bundle completed successfully. Hermes bytecode generation is disabled for that validation command because the container's Expo toolchain could not generate bytecode; normal `npx expo start` remains the intended development command.
