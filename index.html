@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#05070c">
+  <title>Next-Generation Web Experiences</title>
+  <style>
+    :root { --ice:#9fe0ff; --gold:#f3d98a; --paper:#edf2ef; --muted:#8d9aa5; --line:rgba(237,242,239,.2); }
+    * { box-sizing:border-box; }
+    html,body { width:100%; height:100%; margin:0; overflow:hidden; background:#05070c; }
+    body { color:var(--paper); font-family:"Trebuchet MS",Arial,sans-serif; }
+    #scene { position:fixed; inset:0; z-index:0; width:100%; height:100%; touch-action:none; outline:0; cursor:grab; }
+    #scene.dragging { cursor:grabbing; }
+    .atmosphere { position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(ellipse at 66% 48%, transparent 7%, rgba(5,7,12,.1) 42%, rgba(3,5,9,.8) 100%), linear-gradient(90deg,rgba(4,6,11,.95) 0%,rgba(4,6,11,.22) 52%,rgba(4,6,11,.08) 100%); }
+    .grid-wash { position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.16; background-image:linear-gradient(rgba(159,224,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(159,224,255,.035) 1px,transparent 1px); background-size:80px 80px; mask-image:linear-gradient(90deg,black,transparent 67%); }
+    .topbar,.hero,.footer { position:fixed; z-index:3; left:clamp(22px,5.5vw,88px); right:clamp(22px,5.5vw,88px); }
+    .topbar { top:28px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:12px; font-size:11px; font-weight:600; letter-spacing:.25em; text-transform:uppercase; }
+    .brand-mark { display:grid; width:30px; height:30px; place-items:center; border:1px solid var(--line); border-radius:50%; color:var(--ice); font:600 15px Georgia,serif; box-shadow:0 0 20px rgba(159,224,255,.12); }
+    .status { display:flex; align-items:center; gap:11px; color:#aab6bd; font-size:10px; letter-spacing:.18em; text-transform:uppercase; }
+    .status i { width:6px; height:6px; border-radius:50%; background:var(--ice); box-shadow:0 0 14px var(--ice); }
+    .hero { top:50%; max-width:610px; transform:translateY(-47%); isolation:isolate; }
+    .hero:before { position:absolute; z-index:-1; top:-32px; right:-46px; bottom:-34px; left:-34px; border:1px solid rgba(159,224,255,.08); background:linear-gradient(105deg,rgba(4,7,13,.78),rgba(4,7,13,.38) 68%,transparent); box-shadow:0 18px 55px rgba(0,0,0,.24); content:""; pointer-events:none; }
+    .eyebrow { display:flex; align-items:center; gap:12px; margin:0 0 19px; color:var(--ice); font-size:10px; letter-spacing:.31em; text-transform:uppercase; }
+    .eyebrow:before { width:35px; height:1px; background:var(--ice); content:""; }
+    h1 { max-width:650px; margin:0; color:#eef2ef; font:600 clamp(42px,6.4vw,92px)/.96 Georgia,serif; letter-spacing:-.035em; text-wrap:balance; text-shadow:0 4px 30px rgba(0,0,0,.72),0 1px 8px rgba(0,0,0,.9); }
+    h1 span { background:linear-gradient(110deg,#ccefff 4%,#9fe0ff 37%,#f3d98a 93%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .copy { max-width:405px; margin:25px 0 29px; color:#c2cdd1; font-size:13px; line-height:1.75; letter-spacing:.025em; text-shadow:0 2px 12px rgba(0,0,0,.9); }
+    .cta { display:inline-flex; align-items:center; gap:24px; padding:13px 17px 13px 19px; color:var(--paper); border:1px solid rgba(159,224,255,.62); background:rgba(8,13,22,.22); backdrop-filter:blur(12px); font:11px "Trebuchet MS",Arial,sans-serif; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; transition:background .3s,border-color .3s,transform .3s; }
+    .cta span { color:var(--gold); font-size:16px; line-height:0; }
+    .cta:hover { border-color:var(--gold); background:rgba(159,224,255,.1); transform:translateY(-2px); }
+    .footer { bottom:27px; display:flex; align-items:center; justify-content:space-between; }
+    .footer small { color:#788691; font-size:9px; letter-spacing:.2em; text-transform:uppercase; }
+    .hint { display:flex; align-items:center; gap:12px; color:#c8d2d5; font-size:10px; letter-spacing:.21em; text-transform:uppercase; }
+    .mouse { position:relative; display:block; width:16px; height:25px; border:1px solid rgba(237,242,239,.65); border-radius:10px; }
+    .mouse:after { position:absolute; top:5px; left:7px; width:1px; height:5px; background:var(--gold); content:""; animation:scroll 1.8s ease-in-out infinite; }
+    .loading { position:fixed; inset:0; z-index:8; display:grid; place-items:center; background:#05070c; color:#c7d6db; font-size:10px; letter-spacing:.22em; text-transform:uppercase; transition:opacity .8s,visibility .8s; }
+    .loading.done { opacity:0; visibility:hidden; pointer-events:none; }
+    .loading-line { width:130px; height:1px; margin-top:14px; overflow:hidden; background:rgba(159,224,255,.2); }
+    .loading-line:after { display:block; width:45%; height:100%; background:var(--ice); content:""; animation:load 1.2s ease-in-out infinite; }
+    @keyframes load { from{transform:translateX(-100%)} to{transform:translateX(330%)} }
+    @keyframes scroll { 0%,100%{transform:translateY(0);opacity:.45} 50%{transform:translateY(5px);opacity:1} }
+    #diagnostic { position:fixed; right:12px; bottom:12px; left:12px; z-index:9; display:none; max-height:28vh; overflow:auto; padding:9px; border:1px solid #ff7070; color:#ffb1b1; background:rgba(32,4,10,.92); font:11px/1.45 monospace; white-space:pre-wrap; pointer-events:none; }
+    @media (max-width:700px) { .topbar { top:20px; } .status { font-size:8px; letter-spacing:.12em; } .status i { display:none; } .hero { top:48%; } .copy { max-width:310px; margin-top:20px; font-size:12px; } .footer { bottom:20px; } .footer small { display:none; } .hint { width:100%; justify-content:flex-end; font-size:9px; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="Interactive neural network field"></canvas>
+  <div class="atmosphere"></div><div class="grid-wash"></div>
+  <header class="topbar"><div class="brand"><span class="brand-mark">N</span><span>Neural / 026</span></div><div class="status"><i></i>Live field · 48.210° N / 16.363° E</div></header>
+  <main class="hero"><p class="eyebrow">WebGL / Living systems</p><h1>Next-Generation<br><span>Web Experiences</span></h1><p class="copy">Intelligent interfaces where connection becomes form. Designed for brands moving at the speed of live data.</p><button class="cta" id="explore" type="button">Enter the field <span>↗</span></button></main>
+  <footer class="footer"><small>Neural field · Live data</small><div class="hint"><span class="mouse"></span>Drag to explore</div></footer>
+  <div class="loading" id="loading"><div>Building the neural field<div class="loading-line"></div></div></div><div id="diagnostic" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // One classic script, synchronous construction, and Three.js r128 only.
+    (function () {
+      'use strict';
+      var diagnostic = document.getElementById('diagnostic');
+      function report(label, detail) { diagnostic.textContent = label + ': ' + detail; diagnostic.style.display = 'block'; console.error(label, detail); document.getElementById('loading').classList.add('done'); }
+      window.addEventListener('error', function (event) { if (event.error || event.message) report('Scene error', event.error && event.error.stack ? event.error.stack : event.message); });
+      if (!window.THREE) { report('Scene error', 'Three.js CDN did not load'); return; }
+
+      // Core scene and explicit dark safety background.
+      var canvas = document.getElementById('scene');
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x05070c);
+      scene.fog = new THREE.FogExp2(0x080d16, 0.022);
+      var camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, .1, 100);
+      var renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true, alpha:false });
+      renderer.setClearColor(0x05070c, 1);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+
+      // Quiet background stars provide depth without competing with the field.
+      var starGeometry = new THREE.BufferGeometry(), starPositions = [];
+      for (var star=0; star<260; star++) {
+        var starAngle = Math.random() * Math.PI * 2, starRadius = 15 + Math.random() * 20;
+        starPositions.push(Math.cos(starAngle) * starRadius, (Math.random() - .5) * 18, Math.sin(starAngle) * starRadius - 4);
+      }
+      starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+      scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color:0x667786, size:.025, transparent:true, opacity:.42, depthWrite:false })));
+
+      // Fibonacci sphere creates an even organic shell; a subtle waist gives it a brain-like silhouette.
+      var nodeCount = 420, nodeData = [], pointPositions = [], pointColors = [], hubPositions = [], hubColors = [], pointPulse = [], hubPulse = [];
+      var ice = new THREE.Color(0x9fe0ff), gold = new THREE.Color(0xf3d98a), pointColor = new THREE.Color();
+      var goldenAngle = Math.PI * (3 - Math.sqrt(5));
+      for (var i=0; i<nodeCount; i++) {
+        var y = 1 - (i / (nodeCount - 1)) * 2, ring = Math.sqrt(1 - y * y), angle = goldenAngle * i;
+        var organic = 1 + .075 * Math.sin(angle * 3 + y * 8) + .035 * Math.cos(angle * 7 - y * 4);
+        var waist = .86 + .14 * Math.pow(Math.abs(y), .55);
+        var x = Math.cos(angle) * ring * 4.35 * organic * waist;
+        var z = Math.sin(angle) * ring * 3.25 * organic;
+        var py = y * 3.55 * organic;
+        nodeData.push({ x:x, y:py, z:z, phase:Math.random() * Math.PI * 2, size:Math.random() > .9 ? 1 : 0 });
+        var warm = Math.random(); pointColor.copy(ice).lerp(gold, warm);
+        if (nodeData[i].size) { hubPositions.push(x, py, z); hubColors.push(pointColor.r, pointColor.g, pointColor.b); hubPulse.push(Math.random() * Math.PI * 2); }
+        else { pointPositions.push(x, py, z); pointColors.push(pointColor.r, pointColor.g, pointColor.b); pointPulse.push(Math.random() * Math.PI * 2); }
+      }
+      var network = new THREE.Group(); scene.add(network);
+      var pointGeometry = new THREE.BufferGeometry();
+      pointGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointPositions, 3));
+      var pointColorAttribute = new THREE.Float32BufferAttribute(pointColors, 3); pointGeometry.setAttribute('color', pointColorAttribute);
+      network.add(new THREE.Points(pointGeometry, new THREE.PointsMaterial({ size:.075, vertexColors:true, transparent:true, opacity:.88, blending:THREE.AdditiveBlending, depthWrite:false })));
+      var hubGeometry = new THREE.BufferGeometry();
+      hubGeometry.setAttribute('position', new THREE.Float32BufferAttribute(hubPositions, 3));
+      var hubColorAttribute = new THREE.Float32BufferAttribute(hubColors, 3); hubGeometry.setAttribute('color', hubColorAttribute);
+      network.add(new THREE.Points(hubGeometry, new THREE.PointsMaterial({ size:.16, vertexColors:true, transparent:true, opacity:1, blending:THREE.AdditiveBlending, depthWrite:false })));
+
+      // Connect each node to its nearest five neighbors, only within a local threshold.
+      var edgePositions = [], edgeColors = [], edgePhase = [], edgeSeen = {};
+      for (var n=0; n<nodeCount; n++) {
+        var nearest = [];
+        for (var candidate=0; candidate<nodeCount; candidate++) {
+          if (candidate === n) continue;
+          var dx=nodeData[n].x-nodeData[candidate].x, dy=nodeData[n].y-nodeData[candidate].y, dz=nodeData[n].z-nodeData[candidate].z;
+          var distance=dx*dx+dy*dy+dz*dz;
+          nearest.push({ index:candidate, distance:distance });
+        }
+        nearest.sort(function (a,b) { return a.distance-b.distance; });
+        for (var neighbor=0; neighbor<5; neighbor++) {
+          if (!nearest[neighbor] || nearest[neighbor].distance > 1.25) continue;
+          var key=n<nearest[neighbor].index ? n+'-'+nearest[neighbor].index : nearest[neighbor].index+'-'+n;
+          if (edgeSeen[key]) continue;
+          edgeSeen[key]=true;
+          var first=nodeData[n], second=nodeData[nearest[neighbor].index];
+          edgePositions.push(first.x,first.y,first.z,second.x,second.y,second.z);
+          edgeColors.push(.16,.38,.52,.16,.38,.52);
+          edgePhase.push(Math.random()*Math.PI*2);
+        }
+      }
+      var lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(edgePositions, 3));
+      var lineColorAttribute = new THREE.Float32BufferAttribute(edgeColors, 3); lineGeometry.setAttribute('color', lineColorAttribute);
+      var synapses = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ vertexColors:true, transparent:true, opacity:.7, blending:THREE.AdditiveBlending, depthWrite:false }));
+      network.add(synapses);
+
+      // Small luminous core makes the shell read as one living volume.
+      network.add(new THREE.Mesh(new THREE.SphereGeometry(2.25, 24, 16), new THREE.MeshBasicMaterial({ color:0x0d2432, transparent:true, opacity:.18, blending:THREE.AdditiveBlending, depthWrite:false })));
+
+      // Pointer parallax and full 360-degree drag rotation.
+      var target = new THREE.Vector3(0,0,0), yaw=.25, targetYaw=.25, pitch=.04, targetPitch=.04, radius=17.5, dragging=false, lastX=0, lastY=0, idleAt=0, pointerX=0, pointerY=0, previousFrame=performance.now();
+      function setCamera() { var now=performance.now(), delta=Math.min((now-previousFrame)/1000,.05), auto=!dragging && now > idleAt; previousFrame=now; if (auto) targetYaw += delta*.0168; yaw += (targetYaw-yaw)*Math.min(1,delta*14); pitch += (targetPitch-pitch)*Math.min(1,delta*14); var vertical = Math.max(-.25, Math.min(.55, pitch + pointerY*.04)); camera.position.set(Math.sin(yaw)*radius + pointerX*.32, Math.sin(vertical)*radius*.65, Math.cos(yaw)*radius); camera.lookAt(target); }
+      canvas.addEventListener('pointerdown', function (event) { dragging=true; canvas.classList.add('dragging'); lastX=event.clientX; lastY=event.clientY; canvas.setPointerCapture(event.pointerId); idleAt=performance.now()+2000; });
+      canvas.addEventListener('pointermove', function (event) { pointerX=event.clientX/innerWidth-.5; pointerY=event.clientY/innerHeight-.5; if (dragging) { targetYaw-=(event.clientX-lastX)*.006; targetPitch+=(event.clientY-lastY)*.004; lastX=event.clientX; lastY=event.clientY; } });
+      canvas.addEventListener('pointerup', function (event) { dragging=false; canvas.classList.remove('dragging'); idleAt=performance.now()+2000; canvas.releasePointerCapture(event.pointerId); });
+      canvas.addEventListener('pointercancel', function () { dragging=false; canvas.classList.remove('dragging'); idleAt=performance.now()+2000; });
+      document.getElementById('explore').addEventListener('click', function () { targetYaw=.05; targetPitch=.02; idleAt=performance.now()+2000; });
+      addEventListener('resize', function () { camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+
+      // Animate asynchronous node signals, line signals, breathing, and slow rotation.
+      var clock = new THREE.Clock();
+      function animate() {
+        var time = clock.getElapsedTime(), pulseIndex=0;
+        network.rotation.y = time*.055;
+        network.rotation.x = Math.sin(time*.17)*.035;
+        var breath = 1 + Math.sin(time*.3)*.018; network.scale.set(breath, breath*.985, breath);
+        for (var pointIndex=0; pointIndex<pointPulse.length; pointIndex++) { var pointSignal=.72 + .28*Math.sin(time*1.4+pointPulse[pointIndex]); pointColorAttribute.array[pointIndex*3]=pointColors[pointIndex*3]*pointSignal; pointColorAttribute.array[pointIndex*3+1]=pointColors[pointIndex*3+1]*pointSignal; pointColorAttribute.array[pointIndex*3+2]=pointColors[pointIndex*3+2]*pointSignal; }
+        for (var hubIndex=0; hubIndex<hubPulse.length; hubIndex++) { var hubSignal=.75 + .38*Math.sin(time*1.15+hubPulse[hubIndex]); hubColorAttribute.array[hubIndex*3]=hubColors[hubIndex*3]*hubSignal; hubColorAttribute.array[hubIndex*3+1]=hubColors[hubIndex*3+1]*hubSignal; hubColorAttribute.array[hubIndex*3+2]=hubColors[hubIndex*3+2]*hubSignal; }
+        pointColorAttribute.needsUpdate=true; hubColorAttribute.needsUpdate=true;
+        for (var lineIndex=0; lineIndex<edgePhase.length; lineIndex++) { var signal=.16 + (.42 + .3*Math.sin(time*1.6+edgePhase[lineIndex]))*.52; lineColorAttribute.array[pulseIndex]=signal*.35; lineColorAttribute.array[pulseIndex+1]=signal*.8; lineColorAttribute.array[pulseIndex+2]=signal; lineColorAttribute.array[pulseIndex+3]=signal*.35; lineColorAttribute.array[pulseIndex+4]=signal*.8; lineColorAttribute.array[pulseIndex+5]=signal; pulseIndex+=6; }
+        lineColorAttribute.needsUpdate=true;
+        setCamera(); renderer.render(scene,camera); requestAnimationFrame(animate);
+      }
+      setCamera(); animate();
+      document.getElementById('loading').classList.add('done');
+    }());
+  </script>
+</body>
+</html>
