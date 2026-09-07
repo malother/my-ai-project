@@ -19,8 +19,8 @@ export const seedData = {
     { id: 'a2', bank_name: 'Ally', account_type: 'savings', account_number_last_four: '7702', balance: 12480, is_primary: false, last_synced: '2 min ago' }
   ],
   cards: [
-    { id: 'c1', card_number: '4821', card_holder_name: 'Jordan Lee', expiration_date: '09/28', cvv: '***', card_type: 'visa', is_default: true },
-    { id: 'c2', card_number: '1094', card_holder_name: 'Jordan Lee', expiration_date: '04/27', cvv: '***', card_type: 'mastercard', is_default: false }
+    { id: 'c1', card_number: '4821', card_holder_name: 'Alex Morgan', expiration_date: '09/28', cvv: '***', card_type: 'visa', is_default: true },
+    { id: 'c2', card_number: '1094', card_holder_name: 'Alex Morgan', expiration_date: '04/27', cvv: '***', card_type: 'mastercard', is_default: false }
   ],
   kids: [
     { id: 'k1', name: 'Maya', age: 10, card_number: '1094', card_locked: false, current_balance: 84.5, allowance_amount: 18, allowance_frequency: 'weekly', last_allowance_date: '2026-09-05', photo_url: '', auto_deposit_chores: true },

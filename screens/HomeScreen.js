@@ -12,7 +12,7 @@ export default function HomeScreen({ navigation }) {
   const safe = income - spent - bills.filter((bill) => bill.active).reduce((sum, item) => sum + item.amount, 0);
   const totals = expenses.reduce((result, item) => ({ ...result, [item.category]: (result[item.category] || 0) + item.amount }), {});
   return <ScrollView style={styles.flex} contentContainerStyle={styles.screen} showsVerticalScrollIndicator={false}>
-    <Header title="Good morning, Jordan" subtitle="September 7, 2026" onPress={() => navigation.navigate('AccountSettings')} />
+    <Header subtitle="September 7, 2026" onPress={() => navigation.navigate('AccountSettings')} />
     <Card style={{ backgroundColor: colors.tealDark, borderColor: '#18c8b5', marginBottom: 18 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><View><Text style={{ color: '#baf8ef', fontSize: 12, fontWeight: '700' }}>WEEKLY BALANCE</Text><Text style={{ color: colors.white, fontSize: 34, fontWeight: '900', marginTop: 7 }}>{money(safe)}</Text></View><View style={{ width: 44, height: 44, borderRadius: 15, backgroundColor: '#ffffff22', alignItems: 'center', justifyContent: 'center' }}><Ionicons name="trending-up" size={24} color={colors.white} /></View></View>
       <View style={{ flexDirection: 'row', gap: 18, marginTop: 18 }}><Text style={{ color: '#baf8ef', fontSize: 12 }}>INCOME <Text style={{ color: colors.white, fontWeight: '800' }}>{money(income)}</Text></Text><Text style={{ color: '#baf8ef', fontSize: 12 }}>SPENT <Text style={{ color: colors.white, fontWeight: '800' }}>{money(spent)}</Text></Text></View>
